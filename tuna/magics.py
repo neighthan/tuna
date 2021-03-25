@@ -27,8 +27,11 @@ def _display_tuna(
     }
 
     page = (tuna_dir / "index.html").read_text()
-    page = re.sub(r"<nav.*</nav>", "", page, flags=re.DOTALL)
-    page = re.sub(r"<footer.*</footer>", "", page, flags=re.DOTALL)
+    page = re.sub(r"<nav.*?</nav>", "", page, flags=re.DOTALL)
+    page = re.sub(r"<footer.*?</footer>", "", page, flags=re.DOTALL)
+    # I remove the classes from these two elements so that the width can just be 100%
+    page = page.replace('<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">', '<main role="main">')
+    page = page.replace('<div class="pt-3 pb-2 mb-3">', '<div>')
     page = page.replace('row-height="100"', f'row-height="{row_height}"')
 
     for rep_string, rep_fname in replacements.items():
@@ -38,6 +41,7 @@ def _display_tuna(
         elif rep_fname.endswith(".css"):
             asset = f"<style>{asset}</style>"
         page = page.replace(rep_string, asset)
+    page = re.sub(r"const button.*?\}\)\);", "", page, flags=re.DOTALL)
     # Use `HTML` with an iframe inside rather than just `IFrame` so that we don't have
     # to write out an html file and ensure it's not deleted before the results are
     # displayed
